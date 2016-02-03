@@ -19,7 +19,10 @@ module.exports = function (options) {
 	var fileCount = 0;
 	var remotePath = options.remotePath || '';
 	delete options.remotePath;
-
+    
+    //if concurent 
+    var ftp = new JSFtp(options);
+    
 	return through.obj(function (file, enc, cb) {
 		if (file.isNull()) {
 			cb(null, file);
@@ -34,7 +37,7 @@ module.exports = function (options) {
 		var self = this;
 
 		// have to create a new connection for each file otherwise they conflict
-		var ftp = new JSFtp(options);
+		//var ftp = new JSFtp(options);
 
 		var finalRemotePath = path.join('/', remotePath, file.relative).replace(/\\/g, '/');
 
@@ -51,12 +54,12 @@ module.exports = function (options) {
 				}
 
 				fileCount++;
-				ftp.raw.quit();
+				//ftp.raw.quit();
 				cb(null, file);
 			});
 		});
 
-		if (options.verbose) {
+		if (true) {
 			gutil.log('gulp-ftp:', chalk.green('✔ ') + file.relative);
 		}
 	}, function (cb) {
@@ -65,7 +68,8 @@ module.exports = function (options) {
 		} else {
 			gutil.log('gulp-ftp:', gutil.colors.yellow('No files uploaded'));
 		}
-
+        //if concurrent
+        ftp.raw.quit();
 		cb();
 	});
 };
